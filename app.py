@@ -45,7 +45,7 @@ def store_conversation(cursor, role, message):
 conn, cursor = initialize_db()
 
 # Initialize Streamlit app
-st.set_page_config(page_title="Q&A Chatbot with Memory")
+st.set_page_config(page_title="Q&A Chatbot")
 
 st.header("Chat with AI")
 
@@ -78,7 +78,7 @@ if submit and input:
 if clear_response:
     # Reset the input field and remove previous chat response from display
     input = ""
-    #st.session_state['chat_history'].clear()
+    st.session_state['chat_history'].clear()
 st.subheader("The Chat History is")
 
 # Display the chat history
