@@ -78,7 +78,7 @@ if submit and input:
 if clear_response:
     # Reset the input field and remove previous chat response from display
     input = ""
-    
+    st.session_state['chat_history'].clear()
 st.subheader("The Chat History is")
 
 # Display the chat history
