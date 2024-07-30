@@ -56,6 +56,7 @@ if 'chat_history' not in st.session_state:
 # Text input for user question
 input = st.text_input("Input: ", key="input")
 submit = st.button("Ask the question")
+clear_response = st.button("Clear Response")  # Clear response button
 
 # If submit button is clicked and there's input
 if submit and input:
@@ -72,7 +73,12 @@ if submit and input:
         st.write(chunk.text)
         st.session_state['chat_history'].append(("Bot", chunk.text))
         store_conversation(cursor, "Bot", chunk.text)
-
+        
+# Clear response logic
+if clear_response:
+    # Reset the input field and remove previous chat response from display
+    input = ""
+    
 st.subheader("The Chat History is")
 
 # Display the chat history
