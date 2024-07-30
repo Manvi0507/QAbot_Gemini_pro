@@ -73,11 +73,11 @@ if submit and input:
         st.session_state['chat_history'].append(("Bot", chunk.text))
         store_conversation(cursor, "Bot", chunk.text)
 
-#st.subheader("The Chat History is")
+st.subheader("The Chat History is")
 
 # Display the chat history
-#for role, text in st.session_state['chat_history']:
-    #st.write(f"{role}: {text}")
+for role, text in st.session_state['chat_history']:
+    st.write(f"{role}: {text}")
 
 # Function to retrieve all conversations from the database
 #def get_all_conversations(cursor):
