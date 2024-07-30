@@ -80,13 +80,13 @@ if submit and input:
     #st.write(f"{role}: {text}")
 
 # Function to retrieve all conversations from the database
-def get_all_conversations(cursor):
-    cursor.execute('SELECT role, message FROM conversations')
-    return cursor.fetchall()
+#def get_all_conversations(cursor):
+    #cursor.execute('SELECT role, message FROM conversations')
+    #return cursor.fetchall()
 
 # Display stored conversation from the database
 #st.subheader("Stored Conversation History")
-stored_conversations = get_all_conversations(cursor)
+#stored_conversations = get_all_conversations(cursor)
 #for role, text in stored_conversations:
     #st.write(f"{role}: {text}")
 
