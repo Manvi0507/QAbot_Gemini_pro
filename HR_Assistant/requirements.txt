@@ -10,3 +10,4 @@ python-dotenv
 bs4
 unstructured
 google-auth
+PyPDF2
