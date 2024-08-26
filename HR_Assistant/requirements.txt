@@ -1,0 +1,8 @@
+streamlit
+langchain
+langchain_groq
+langchain-core
+langchain_community
+python-dotenv
+bs4
+unstructured
