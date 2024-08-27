@@ -7,6 +7,8 @@ from langchain.chains import LLMChain
 from langchain_google_genai import ChatGoogleGenerativeAI
 import google.generativeai as genai
 from PyPDF2 import PdfReader
+import re
+from docx import Document
 
 
 # Load environment variables
@@ -22,8 +24,9 @@ genai.configure(api_key=GOOGLE_API_KEY)
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.0)
 
 # Streamlit App Configuration
-st.set_page_config(page_title="AI Powered HR Assistant", page_icon=":briefcase:", layout="centered")
-st.title("HR Assistant 💼🤝👩🏻‍💼")
+st.set_page_config(page_title="HR Assistant", page_icon=":briefcase:", layout="centered")
+st.title("AI Powered HR Assistant 💼🤝👩🏻‍💼")
+
 
 # Sidebar with navigation
 with st.sidebar:
@@ -43,6 +46,13 @@ def extract_text_from_cvs(uploaded_cvs):
             text = file.read().decode('utf-8')
         texts.append(text)
     return texts
+
+
+def extract_field(extracted_text, field_name):
+    pattern = rf"{field_name}: (.*)"
+    match = re.search(pattern, extracted_text)
+    return match.group(1) if match else ""
+
 
 
 # Job Description Generator
@@ -119,12 +129,12 @@ if choice == "HR Policy Assistance":
        custom_policy = st.text_input("Please specify the policy type:")
        policy_type = custom_policy  # Update policy_type with the custom input
     
-
+    # Handling Leave Policy type for custom leave types
     if policy_type == "Leave Policy":
-        leave_types = st.multiselect("Leave Types:", ["Sick Leave", "Earned Leave", "Maternity Leave", "Paternity Leave","Other"])
-        if leave_types == "Other":
+        leave_types = st.multiselect("Leave Types:", ["Sick Leave", "Earned Leave", "Maternity Leave", "Paternity Leave", "Other"])
+        if "Other" in leave_types:
            custom_leave = st.text_input("Please specify the leave type:")
-           leave_types = custom_policy  # Update policy_type with the custom input
+           leave_types.append(custom_leave)  # Add custom leave to the leave_types list
     
     # Generate HR Policy Button
     if st.button("Generate HR Policy"):
@@ -151,8 +161,34 @@ if choice == "HR Policy Assistance":
             hr_policy = chain.run({"policy_type": policy_type, "employee_category": employee_category})
             st.subheader(f"Generated {policy_type}")
             st.write(hr_policy)
+            
+            # Provide download option for HR Policy in text format
+            st.download_button(
+                label="Download HR Policy as Text",
+                data=hr_policy,
+                file_name=f"{policy_type}_Policy.txt",
+                mime="text/plain"
+            )
+
+            # Create and download Word document
+            doc = Document()
+            doc.add_heading(f"{policy_type} Policy", level=1)
+            doc.add_paragraph(hr_policy)
+            doc_file_path = f"/tmp/{policy_type}_Policy.docx"
+            doc.save(doc_file_path)
+
+            # Read the content of the Word document to offer download
+            with open(doc_file_path, "rb") as file:
+                st.download_button(
+                    label="Download HR Policy as Word Document",
+                    data=file,
+                    file_name=f"{policy_type}_Policy.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
+
         except Exception as e:
             st.error(f"Failed to generate HR policy: {str(e)}")
+
 
 # CV Summarize
 if choice == "CV Summarize":
@@ -201,7 +237,7 @@ if choice == "Extract CV Details":
 
         # Define the prompt template for extracting CV details
         extract_template = """
-        You are a recruiter expert. Extract the following details from the uploaded multiple CV in a structured( or tabular ) format:
+        You are a recruiter expert. Extract the following details from the uploaded multiple CV in a tabular format and also present in pandas dataframe:
 
         - Name
         - Experience (Years)
@@ -212,40 +248,48 @@ if choice == "Extract CV Details":
         - Mobile Number
         - Email
 
-        Ensure the summary is concise and clear.
+        
         CV Text:
         {cv_text}
         """
 
+        
         # Iterate through each CV text and extract details using LLMChain
         chain = LLMChain(llm=llm, prompt=PromptTemplate.from_template(extract_template))
 
         for cv_text in cvs_texts:
             extracted_details = chain.run({"cv_text": cv_text})
+    
+            # Debugging: Check what the LLM model outputs
+            st.write("Extracted Details:", extracted_details)
 
-            # Assuming extracted_details come in a structured text, convert them to a dictionary
-            # You may need to parse the extracted_details accordingly
+            # Example extraction parsing logic based on expected output format
+            # Assuming the output is a structured string, you can split it into fields
+            # You'll need to parse this output based on your model's actual behavior.
             details_dict = {
-                "Name": "",  # Replace with actual extraction from extracted_details
-                "Experience (Years)": "",  # Replace with actual extraction
-                "Education": "",  # Replace with actual extraction
-                "Highest Qualification": "",  # Replace with actual extraction
-                "Location": "",  # Replace with actual extraction
-                "Current Company": "",  # Replace with actual extraction
-                "Mobile Number": "",  # Replace with actual extraction
-                "Email": ""  # Replace with actual extraction
-            }
+               "Name": extract_field(extracted_details, "Name"),
+               "Experience (Years)": extract_field(extracted_details, "Experience"),
+               "Education": extract_field(extracted_details, "Education"),
+               "Highest Qualification": extract_field(extracted_details, "Highest Qualification"),
+               "Location": extract_field(extracted_details, "Location"),
+               "Current Company": extract_field(extracted_details, "Current Company"),
+               "Mobile Number": extract_field(extracted_details, "Mobile Number"),
+               "Email": extract_field(extracted_details, "Email")
+        }
+        all_cv_details.append(details_dict)
 
-            # Append each CV's extracted details to the list
-            all_cv_details.append(details_dict)
+       # st.write("Test Extracted Details:", extracted_details)
 
-        # Convert the list of details into a DataFrame for structured tabular view
+
+        # Convert the list of extracted details to a DataFrame
         df = pd.DataFrame(all_cv_details)
 
-        # Display the table in Streamlit
-        st.subheader("Extracted CV Details from Multiple Documents")
-        st.dataframe(df)
+        # Display the DataFrame
+        #if not df.empty:
+         #  st.dataframe(df)
+        #else:
+       #    st.write("No details extracted.")
 
-        # Provide download option for the extracted details as CSV
-        csv = df.to_csv(index=False)
-        st.download_button(label="Download CSV", data=csv, file_name="multiple_cv_details.csv", mime="text/csv")
+        # Display the table in Streamlit
+        #st.subheader("Extracted CV Details from Multiple Documents")
+        #st.dataframe(df)
