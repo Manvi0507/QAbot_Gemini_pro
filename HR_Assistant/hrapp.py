@@ -111,13 +111,14 @@ if choice == "HR Policy Assistance":
     st.header("HR Policy Assistance")
 
     # Inputs for HR Policy Assistance
-policy_type = st.selectbox("Select Policy Type:", ["Leave Policy", "Work From Home Policy", "Maternity Policy", "PF & Gratuity", "Harassment Policy", "Other"])
-
-# If the user selects "Other", display a text input field to allow them to type in the custom policy type
-if policy_type == "Other":
-    custom_policy = st.text_input("Please specify the policy type:")
-    policy_type = custom_policy  # Update policy_type with the custom input
+    policy_type = st.selectbox("Select Policy Type:", ["Leave Policy", "Work From Home Policy", "Maternity Policy", "PF & Gratuity", "Harassment Policy", "Other"])
     employee_category = st.selectbox("Employee Category:", ["Permanent", "Contractual", "Interns"])
+
+    # If the user selects "Other", display a text input field to allow them to type in the custom policy type
+    if policy_type == "Other":
+       custom_policy = st.text_input("Please specify the policy type:")
+       policy_type = custom_policy  # Update policy_type with the custom input
+    
 
     if policy_type == "Leave Policy":
         leave_types = st.multiselect("Leave Types:", ["Sick Leave", "Earned Leave", "Maternity Leave", "Paternity Leave"])
