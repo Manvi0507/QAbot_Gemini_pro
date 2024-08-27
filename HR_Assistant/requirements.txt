@@ -11,3 +11,4 @@ bs4
 unstructured
 google-auth
 PyPDF2
+python-docx
