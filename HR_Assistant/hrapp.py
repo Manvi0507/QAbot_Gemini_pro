@@ -121,8 +121,11 @@ if choice == "HR Policy Assistance":
     
 
     if policy_type == "Leave Policy":
-        leave_types = st.multiselect("Leave Types:", ["Sick Leave", "Earned Leave", "Maternity Leave", "Paternity Leave"])
-
+        leave_types = st.multiselect("Leave Types:", ["Sick Leave", "Earned Leave", "Maternity Leave", "Paternity Leave","Other"])
+        if leave_types == "Other":
+           custom_leave = st.text_input("Please specify the leave type:")
+           leave_types = custom_policy  # Update policy_type with the custom input
+    
     # Generate HR Policy Button
     if st.button("Generate HR Policy"):
         # Define the prompt template for generating HR policies
