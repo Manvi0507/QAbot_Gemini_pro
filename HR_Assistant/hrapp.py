@@ -22,9 +22,8 @@ genai.configure(api_key=GOOGLE_API_KEY)
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.0)
 
 # Streamlit App Configuration
-st.set_page_config(page_title="HR Assistant", page_icon=":briefcase:", layout="centered")
+st.set_page_config(page_title="AI Powered HR Assistant", page_icon=":briefcase:", layout="centered")
 st.title("HR Assistant 💼🤝👩🏻‍💼")
-st.subheader("Job Description Generator, HR Policy Assistance & More 👩🏻‍💻")
 
 # Sidebar with navigation
 with st.sidebar:
@@ -112,7 +111,12 @@ if choice == "HR Policy Assistance":
     st.header("HR Policy Assistance")
 
     # Inputs for HR Policy Assistance
-    policy_type = st.selectbox("Select Policy Type:", ["Leave Policy", "Work From Home Policy", "Maternity Policy", "PF & Gratuity", "Harassment Policy"])
+policy_type = st.selectbox("Select Policy Type:", ["Leave Policy", "Work From Home Policy", "Maternity Policy", "PF & Gratuity", "Harassment Policy", "Other"])
+
+# If the user selects "Other", display a text input field to allow them to type in the custom policy type
+if policy_type == "Other":
+    custom_policy = st.text_input("Please specify the policy type:")
+    policy_type = custom_policy  # Update policy_type with the custom input
     employee_category = st.selectbox("Employee Category:", ["Permanent", "Contractual", "Interns"])
 
     if policy_type == "Leave Policy":
