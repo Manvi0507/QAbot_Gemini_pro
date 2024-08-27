@@ -25,7 +25,7 @@ llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.0)
 
 # Streamlit App Configuration
 st.set_page_config(page_title="HR Assistant", page_icon=":briefcase:", layout="centered")
-st.title("AI Powered HR Assistant 💼🤝👩🏻‍💼")
+st.title("AI Empowered HR Assistant 💼🤝👩🏻‍💼")
 
 
 # Sidebar with navigation
