@@ -1,11 +1,13 @@
 streamlit
 langchain
-langchain_groq
 langchain-core
 langchain_community
+langchain-google-genai
+langchain-text-splitters
 python-dotenv
 bs4
 unstructured
 PyPDF2
 google-generativeai
 pdfplumber
+faiss-cpu
