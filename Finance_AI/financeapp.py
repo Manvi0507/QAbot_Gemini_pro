@@ -65,7 +65,8 @@ def create_prompt(extracted_text, extracted_tables):
 
     Table Data (if any):
     {extracted_tables if extracted_tables else "No table data extracted"}
-    Give detailed report analysis for managment and stake holder review
+    
+    Based on above metric calculation give detailed report analysis for managment and stake holder review.
     Please compile a brief report summarizing the key findings about 1 or 2 pages from the analysis.
     """
     return prompt
