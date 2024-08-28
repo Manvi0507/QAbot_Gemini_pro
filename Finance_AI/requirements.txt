@@ -1,0 +1,11 @@
+streamlit
+langchain
+langchain_groq
+langchain-core
+langchain_community
+python-dotenv
+bs4
+unstructured
+PyPDF2
+google-generativeai
+pdfplumber
