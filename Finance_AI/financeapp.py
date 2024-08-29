@@ -69,30 +69,25 @@ def create_prompt(extracted_text, extracted_tables):
 
        Identify trends, anomalies, and patterns within the extracted data.
 
-    2. Metric Analysis:
+    2. Metric Analysis with Numbers:
        Perform a detailed analysis of key financial metrics:
        - Profitability Ratios: Analyze ratios like Gross Margin, Net Margin, Return on Equity, and Return on Assets to evaluate the company’s ability to generate profit relative to its revenue and resources.
        - Liquidity Ratios: Examine the Current Ratio, Quick Ratio, and Cash Ratio to determine the company's ability to cover its short-term liabilities with its short-term assets.
        - Leverage Ratios: Evaluate Debt-to-Equity Ratio, Debt-to-Assets Ratio, and Interest Coverage Ratio to assess the company’s financial leverage and risk exposure.
        - Efficiency Ratios: Calculate Inventory Turnover, Accounts Receivable Turnover, and Asset Turnover to measure how efficiently the company is utilizing its assets to generate revenue.
        - Cash Flow Analysis: Analyze cash flows from operating, investing, and financing activities to determine the cash health of the company.
-
-       Assess the company’s financial health based on these metrics and identify areas of strength and concern.
+         
+       Analyze and display each key financial metric, showing both the actual numbers and the analysis. Include calculations for profitability, liquidity, leverage, and efficiency ratios. Identify trends, anomalies, and assess financial health based on these numbers.
 
     3. Report Generation:
-       Generate a comprehensive report summarizing key findings:
-       - Highlight critical insights for management and stakeholders.
-       - Provide actionable recommendations for improving financial performance.
-       - Suggest potential risks and opportunities based on the analysis.
+       Create a brief report that includes:
+       - The actual numbers for each metric.
+       - A summary of key findings, insights, recommendations, and potential risks/opportunities.
+       - Ensure the report is ready for presentation to management and stakeholders.
 
        Ensure the report is concise, clear, and suitable for presentation to management and stakeholders.
 
-    4. Visualization:
-       Create visualizations to support the analysis:
-       - Include graphs, charts, and trend lines that illustrate key metrics and findings.
-       - Use pie charts, bar graphs, and other visual aids to enhance the clarity and engagement of the report for non-financial stakeholders.
-
-    5. Output:
+    4. Output:
        Generate a professional, automatically formatted PDF report that combines both detailed analysis and an executive summary. The report should be suitable for corporate presentations and include visual aids for a more engaging presentation.
 
     Constraints:
