@@ -51,23 +51,56 @@ def chunk_text(text, chunk_size=1000, chunk_overlap=200):
 # Function to create a prompt for the LLM
 def create_prompt(extracted_text, extracted_tables):
     prompt = f"""
-    Based on the following financial data extracted from the PDF, please calculate the key financial metrics and provide a brief analysis:
+    You are a finance expert based on the uploaded financial statements in PDF format, perform a detailed financial analysis to assess the business's overall health, performance, and potential opportunities or risks. Follow these steps:
 
-    1. Profitability (e.g., Net Profit Margin, Return on Equity)
-    2. Liquidity (e.g., Current Ratio, Quick Ratio)
-    3. Solvency (e.g., Debt to Equity Ratio)
-    4. Efficiency (e.g., Asset Turnover Ratio)
+    1. Extraction and Identification:
+       Extract all relevant financial data from the uploaded PDF, including:
+       - Revenue
+       - Gross Profit
+       - Operating Expenses
+       - Net Income
+       - Earnings Before Interest and Taxes (EBIT)
+       - Total Assets
+       - Total Liabilities
+       - Shareholders' Equity
+       - Cash Flow from Operating Activities
+       - Cash Flow from Investing Activities
+       - Cash Flow from Financing Activities
 
-    Here is the extracted data from the financial statement:
+       Identify trends, anomalies, and patterns within the extracted data.
 
-    Text Data:
-    {extracted_text}
+    2. Metric Analysis:
+       Perform a detailed analysis of key financial metrics:
+       - Profitability Ratios: Analyze ratios like Gross Margin, Net Margin, Return on Equity, and Return on Assets to evaluate the company’s ability to generate profit relative to its revenue and resources.
+       - Liquidity Ratios: Examine the Current Ratio, Quick Ratio, and Cash Ratio to determine the company's ability to cover its short-term liabilities with its short-term assets.
+       - Leverage Ratios: Evaluate Debt-to-Equity Ratio, Debt-to-Assets Ratio, and Interest Coverage Ratio to assess the company’s financial leverage and risk exposure.
+       - Efficiency Ratios: Calculate Inventory Turnover, Accounts Receivable Turnover, and Asset Turnover to measure how efficiently the company is utilizing its assets to generate revenue.
+       - Cash Flow Analysis: Analyze cash flows from operating, investing, and financing activities to determine the cash health of the company.
 
-    Table Data (if any):
-    {extracted_tables if extracted_tables else "No table data extracted"}
-    
-    Based on above metric calculation give detailed report analysis for managment and stake holder review.
-    Please compile a brief report summarizing the key findings about 1 or 2 pages from the analysis.
+       Assess the company’s financial health based on these metrics and identify areas of strength and concern.
+
+    3. Report Generation:
+       Generate a comprehensive report summarizing key findings:
+       - Highlight critical insights for management and stakeholders.
+       - Provide actionable recommendations for improving financial performance.
+       - Suggest potential risks and opportunities based on the analysis.
+
+       Ensure the report is concise, clear, and suitable for presentation to management and stakeholders.
+
+    4. Visualization:
+       Create visualizations to support the analysis:
+       - Include graphs, charts, and trend lines that illustrate key metrics and findings.
+       - Use pie charts, bar graphs, and other visual aids to enhance the clarity and engagement of the report for non-financial stakeholders.
+
+    5. Output:
+       Generate a professional, automatically formatted PDF report that combines both detailed analysis and an executive summary. The report should be suitable for corporate presentations and include visual aids for a more engaging presentation.
+
+    Constraints:
+    - The report must be formatted with a professional design and be ready for immediate use by management and stakeholders.
+    - Ensure that the analysis is accurate, data-driven, and presented in a way that is accessible to both financial and non-financial stakeholders.
+
+    Instructions:
+     Use the extracted data and guidelines above to complete the analysis and generate the final report.
     """
     return prompt
 
@@ -80,43 +113,47 @@ def create_vector_store(text_chunks):
 # Streamlit UI
 st.title("Financial Statement Analyzer")
 
-uploaded_file = st.file_uploader("Upload a financial statement (PDF only)", type=["pdf"])
+uploaded_files = st.file_uploader("Upload financial statement(s) (PDF only)", type=["pdf"], accept_multiple_files=True)
 
-if uploaded_file is not None:
-    # Extract text and table from PDF
-    extracted_text = get_pdf_text([uploaded_file])
-    extracted_table = get_pdf_tables([uploaded_file])
+if uploaded_files:
+    if st.button("Submit & Process"):
+        # Extract text and table from PDF
+        extracted_texts = [get_pdf_text([file]) for file in uploaded_files]
+        extracted_tables = [get_pdf_tables([file]) for file in uploaded_files]
 
-    # Chunk the extracted text
-    text_chunks = chunk_text(extracted_text)
+        # Combine extracted texts for chunking
+        combined_text = " ".join(extracted_texts)
+        
+        # Chunk the combined extracted text
+        text_chunks = chunk_text(combined_text)
 
-    # Create a vector store using the chunks
-    vector_store = create_vector_store(text_chunks)
+        # Create a vector store using the chunks
+        vector_store = create_vector_store(text_chunks)
 
-    # Retrieve relevant chunks for analysis
-    relevant_chunks = vector_store.similarity_search(extracted_text, k=4)
-    combined_text = " ".join([chunk.page_content if hasattr(chunk, "page_content") else str(chunk) for chunk in relevant_chunks])
+        # Retrieve relevant chunks for analysis
+        relevant_chunks = vector_store.similarity_search(combined_text, k=4)
+        combined_relevant_text = " ".join([chunk.page_content if hasattr(chunk, "page_content") else str(chunk) for chunk in relevant_chunks])
 
-    # Create a prompt based on the combined relevant text and tables
-    prompt = create_prompt(combined_text, extracted_table)
+        # Create a prompt based on the combined relevant text and tables
+        prompt = create_prompt(combined_relevant_text, extracted_tables)
 
-    # Call the LLM to analyze the data
-    st.subheader("Analyzing...")
+        # Call the LLM to analyze the data
+        st.subheader("Analyzing...")
 
-    try:
-        # Use LLMChain to handle the analysis
-        chain = LLMChain(llm=llm, prompt=PromptTemplate.from_template(prompt))
-        analysis = chain.run({"cv_text": combined_text})
-        st.subheader("Analysis Result:")
-        st.write(analysis)
+        try:
+            # Use LLMChain to handle the analysis
+            chain = LLMChain(llm=llm, prompt=PromptTemplate.from_template(prompt))
+            analysis = chain.run({"cv_text": combined_relevant_text})
+            st.subheader("Analysis Result:")
+            st.write(analysis)
 
-        # Option to download the report
-        st.download_button(
-            label="Download Report",
-            data=analysis,
-            file_name="financial_analysis_report.txt",
-            mime="text/plain",
-        )
+            # Option to download the report
+            st.download_button(
+                label="Download Report",
+                data=analysis,
+                file_name="financial_analysis_report.txt",
+                mime="text/plain",
+            )
 
-    except Exception as e:
-        st.error(f"An error occurred while analyzing the document: {str(e)}")
+        except Exception as e:
+            st.error(f"An error occurred while analyzing the document: {str(e)}")
