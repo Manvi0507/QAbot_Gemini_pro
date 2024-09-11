@@ -19,7 +19,7 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=GOOGLE_API_KEY)
 
 # Initialize Google LLM and Embeddings
-llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.0)
+llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3)
 embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
 # Function to extract text from PDFs
