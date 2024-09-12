@@ -4,7 +4,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
-
+import os
+import google.generativeai as genai
 import textwrap
 
 from dotenv import load_dotenv
