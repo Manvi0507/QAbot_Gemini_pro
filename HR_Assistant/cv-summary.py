@@ -4,6 +4,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
+import streamlit as st
 import os
 import google.generativeai as genai
 import textwrap
@@ -12,7 +13,6 @@ from dotenv import load_dotenv
 load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-import streamlit as st
 
 def process_docx(docx_file):
     # Use Docx2txtLoader to load the Document
@@ -22,23 +22,9 @@ def process_docx(docx_file):
     return documents
 
 def process_pdf(pdf_file):
-    # Use PyPDFLoader to load a list of PDF Document objects
-    loader = PyPDFLoader(pdf_file)
-    pages = loader.load()
-
-    # Combine all page content into a single string
-    text = "".join([page.page_content for page in pages])
-    text = text.replace('\t', ' ')
-
-    # Split a long document into smaller chunks that can fit into the LLM's context window
-    text_splitter = CharacterTextSplitter(
-        separator="\n",
-        chunk_size=1000,
-        chunk_overlap=50
-    )
-    # Create documents from the list of texts
-    documents = text_splitter.create_documents([text])
-
+    # Use PyPDFLoader to load PDF documents from a file-like object
+    loader = PyPDFLoader(file_path=pdf_file)
+    documents = loader.load_and_split()
     return documents
 
 def main():
@@ -66,7 +52,7 @@ def main():
             return
 
         # Initialize Google Gemini LLM
-        llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3)
+        llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0.3)
 
         # Define prompt templates for the LLM
         prompt_template = """You have been given a Resume to analyse. 
@@ -111,4 +97,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
