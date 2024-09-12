@@ -70,7 +70,7 @@ def main():
             st.error("Unsupported file format. Please upload a .docx or .pdf file.")
             return
 
-        llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.0)
+        llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3)
         prompt_template = """You have been given a Resume to analyse. 
         Write a verbose detail of the following: 
         {text}
