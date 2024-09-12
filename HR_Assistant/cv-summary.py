@@ -14,16 +14,16 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 
-def process_docx(docx_file):
+def process_docx(docx_file_path):
     # Use Docx2txtLoader to load the Document
-    loader = Docx2txtLoader(docx_file)
+    loader = Docx2txtLoader(docx_file_path)
     # Load Documents and split into chunks
     documents = loader.load_and_split()
     return documents
 
-def process_pdf(pdf_file):
-    # Use PyPDFLoader to load PDF documents from a file-like object
-    loader = PyPDFLoader(file_path=pdf_file)
+def process_pdf(pdf_file_path):
+    # Use PyPDFLoader to load PDF documents from a file path
+    loader = PyPDFLoader(file_path=pdf_file_path)
     documents = loader.load_and_split()
     return documents
 
@@ -40,19 +40,22 @@ def main():
         st.write(f"File Name: {uploaded_file.name}")
         st.write(f"File Type: {file_extension}")
 
+        # Save uploaded file to a temporary directory
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_extension}") as temp_file:
+            temp_file.write(uploaded_file.read())
+            temp_file_path = temp_file.name
+
         # Process the file based on its type
         if file_extension == "docx":
-            # Pass the file object to process_docx
-            documents = process_docx(uploaded_file)
+            documents = process_docx(temp_file_path)
         elif file_extension == "pdf":
-            # Pass the file object to process_pdf
-            documents = process_pdf(uploaded_file)
+            documents = process_pdf(temp_file_path)
         else:
             st.error("Unsupported file format. Please upload a .docx or .pdf file.")
             return
 
         # Initialize Google Gemini LLM
-        llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0.3)
+        llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3)
 
         # Define prompt templates for the LLM
         prompt_template = """You have been given a Resume to analyse. 
@@ -94,6 +97,9 @@ def main():
         # Display the result
         st.write("Resume Summary:")
         st.text_area("Text", result['output_text'], height=400)
+
+        # Delete the temporary file after processing
+        os.remove(temp_file_path)
 
 if __name__ == "__main__":
     main()
