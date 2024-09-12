@@ -9,6 +9,7 @@ import textwrap
 
 from dotenv import load_dotenv
 load_dotenv()
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 import streamlit as st
 
