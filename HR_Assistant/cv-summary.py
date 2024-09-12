@@ -15,47 +15,38 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 import streamlit as st
 
 def process_docx(docx_file):
-    # Add your docx processing code here
-    text=""
-    #Docx2txtLoader loads the Document 
-    loader=Docx2txtLoader(docx_file)
-
-    #Load Documents and split into chunks
-    text = loader.load_and_split()
-
-    return text
+    # Use Docx2txtLoader to load the Document
+    loader = Docx2txtLoader(docx_file)
+    # Load Documents and split into chunks
+    documents = loader.load_and_split()
+    return documents
 
 def process_pdf(pdf_file):
-    text=""
-    #PYPDFLoader loads a list of PDF Document objects
-    loader=PyPDFLoader(pdf_file)
+    # Use PyPDFLoader to load a list of PDF Document objects
+    loader = PyPDFLoader(pdf_file)
     pages = loader.load()
-        
-    for page in pages:
-        text+=page.page_content
-    text= text.replace('\t', ' ')
 
-    #splits a long document into smaller chunks that can fit into the LLM's 
-    #model's context window
+    # Combine all page content into a single string
+    text = "".join([page.page_content for page in pages])
+    text = text.replace('\t', ' ')
+
+    # Split a long document into smaller chunks that can fit into the LLM's context window
     text_splitter = CharacterTextSplitter(
-            separator="\n",
-            chunk_size=1000,
-            chunk_overlap=50
-        )
-    #create_documents() create documents froma list of texts
-    texts = text_splitter.create_documents([text])
+        separator="\n",
+        chunk_size=1000,
+        chunk_overlap=50
+    )
+    # Create documents from the list of texts
+    documents = text_splitter.create_documents([text])
 
-    print(len(text))
-
-    return texts
+    return documents
 
 def main():
-
     st.title("CV Summary Generator")
 
+    # Upload file
     uploaded_file = st.file_uploader("Select CV", type=["docx", "pdf"])
 
-    text = ""
     if uploaded_file is not None:
         file_extension = uploaded_file.name.split('.')[-1]
 
@@ -63,15 +54,21 @@ def main():
         st.write(f"File Name: {uploaded_file.name}")
         st.write(f"File Type: {file_extension}")
 
+        # Process the file based on its type
         if file_extension == "docx":
-            text = process_docx(uploaded_file.name)
+            # Pass the file object to process_docx
+            documents = process_docx(uploaded_file)
         elif file_extension == "pdf":
-            text = process_pdf(uploaded_file.name)
+            # Pass the file object to process_pdf
+            documents = process_pdf(uploaded_file)
         else:
             st.error("Unsupported file format. Please upload a .docx or .pdf file.")
             return
 
+        # Initialize Google Gemini LLM
         llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3)
+
+        # Define prompt templates for the LLM
         prompt_template = """You have been given a Resume to analyse. 
         Write a verbose detail of the following: 
         {text}
@@ -93,6 +90,8 @@ def main():
             "Experience Summary: \n"
         )
         refine_prompt = PromptTemplate.from_template(refine_template)
+
+        # Load summarize chain for the LLM
         chain = load_summarize_chain(
             llm=llm,
             chain_type="refine",
@@ -102,8 +101,11 @@ def main():
             input_key="input_documents",
             output_key="output_text",
         )
-        result = chain({"input_documents": text}, return_only_outputs=True)
 
+        # Run the chain to summarize the documents
+        result = chain({"input_documents": documents}, return_only_outputs=True)
+
+        # Display the result
         st.write("Resume Summary:")
         st.text_area("Text", result['output_text'], height=400)
 
