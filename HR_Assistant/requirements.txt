@@ -6,3 +6,5 @@ faiss-cpu
 tiktoken 
 python-dotenv 
 google_generativeai
+pypdf2
+docx
