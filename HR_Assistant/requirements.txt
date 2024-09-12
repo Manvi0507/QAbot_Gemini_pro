@@ -9,3 +9,4 @@ python-dotenv
 google_generativeai
 pypdf
 docx
+tempfile
