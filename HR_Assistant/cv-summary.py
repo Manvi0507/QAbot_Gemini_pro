@@ -6,6 +6,7 @@ from langchain.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
 import streamlit as st
 import os
+import tempfile
 import google.generativeai as genai
 import textwrap
 
