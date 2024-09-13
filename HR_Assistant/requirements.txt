@@ -1,8 +1,8 @@
 streamlit
 langchain
-langchain_community 
+langchain-community 
 langchain_google_genai 
-langchain_core 
+langchain-core 
 faiss-cpu 
 tiktoken 
 python-dotenv 
@@ -10,4 +10,8 @@ google_generativeai
 pypdf
 docx
 PyPDF2
+python-dotenv
+bs4
+unstructured
+python-docx
 
