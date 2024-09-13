@@ -9,4 +9,5 @@ python-dotenv
 google_generativeai
 pypdf
 docx
+PyPDF2
 
