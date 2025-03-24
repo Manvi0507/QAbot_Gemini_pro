@@ -21,7 +21,7 @@ if GOOGLE_API_KEY is None:
 genai.configure(api_key=GOOGLE_API_KEY)
 
 # Initialize Google LLM
-llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.0)
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0.0)
 
 # Streamlit App Configuration
 st.set_page_config(page_title="HR Assistant", page_icon=":briefcase:", layout="centered")
